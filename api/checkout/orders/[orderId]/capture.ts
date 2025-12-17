@@ -1,5 +1,6 @@
+
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getBrowserSafeClientToken } from '../../../utils/paypalFnUtil';
+import { captureOrder } from '../../../../utils/paypalFnUtil';
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -8,22 +9,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+
     // 处理OPTIONS预检请求
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
     try {
-        const { jsonResponse, httpStatusCode } =
-            await getBrowserSafeClientToken();
+        const orderIdParam = req.query.orderId;
+        const orderId = Array.isArray(orderIdParam) ? orderIdParam[0] : orderIdParam;
+        if (!orderId) {
+            return res.status(400).json({ error: 'Missing orderId' });
+        }
+        const { jsonResponse, httpStatusCode } = await captureOrder(orderId);
         res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {
-        console.error("Failed to create browser safe access token:", error);
-        res
-            .status(500)
-            .json({ error: "Failed to create browser safe access token." });
+        console.error("Failed to capture order:", error);
+        res.status(500).json({ error: "Failed to capture order." });
     }
-
-
 
 }

@@ -1,4 +1,4 @@
-import { createOrder } from "../../../../utils/paypalFnUtil";
+import { createOrder, createOrderWithSampleData } from "../../../utils/paypalFnUtil";
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
 
@@ -15,11 +15,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const paypalRequestId = req.headers["paypal-request-id"]?.toString();
-        const { jsonResponse, httpStatusCode } = await createOrder({
-            orderRequestBody: req.body,
-            paypalRequestId,
-        });
+        const { jsonResponse, httpStatusCode } =
+            await createOrderWithSampleData();
         res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {
         console.error("Failed to create order:", error);
