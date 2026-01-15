@@ -49,6 +49,8 @@ const client = new Client({
     },
 });
 
+
+
 const ordersController = new OrdersController(client);
 const oAuthAuthorizationController = new OAuthAuthorizationController(client);
 const vaultController = new VaultController(client);
@@ -115,6 +117,92 @@ export async function getBrowserSafeClientToken() {
         }
     }
 }
+
+
+/* ######################################################################
+ * Token generation helpers
+ * ###################################################################### */
+
+export async function getLiveBrowserSafeClientToken(clientId: string, clientSecret: string) {
+    const liveClient = new Client({
+        clientCredentialsAuthCredentials: {
+            oAuthClientId: clientId,
+            oAuthClientSecret: clientSecret,
+        },
+        timeout: 0,
+        environment: Environment.Production,
+        logging: {
+            logLevel: LogLevel.Info,
+            logRequest: {
+                logBody: true,
+            },
+            logResponse: {
+                logHeaders: true,
+            },
+        },
+    });
+
+
+    const liveOAuthAuthorizationController = new OAuthAuthorizationController(liveClient);
+
+    try {
+        const auth = Buffer.from(
+            `${clientId}:${clientSecret}`,
+        ).toString("base64");
+
+        const fieldParameters = {
+            response_type: "client_token",
+            // the Fastlane component requires this domains[] parameter
+            ...(DOMAINS ? { "domains[]": DOMAINS } : {}),
+        };
+
+        const { result, statusCode } =
+            await liveOAuthAuthorizationController.requestToken(
+                {
+                    authorization: `Basic ${auth}`,
+                },
+                fieldParameters,
+            );
+
+        // the OAuthToken interface is too general
+        // this interface is specific to the "client_token" response type
+        interface ClientToken {
+            accessToken: string;
+            expiresIn: number;
+            scope: string;
+            tokenType: string;
+        }
+
+        const { accessToken, expiresIn, scope, tokenType } = result;
+        const transformedResult: ClientToken = {
+            accessToken,
+            // convert BigInt value to a Number
+            expiresIn: Number(expiresIn),
+            scope: String(scope),
+            tokenType,
+        };
+
+        return {
+            jsonResponse: transformedResult,
+            httpStatusCode: statusCode,
+        };
+    } catch (error) {
+        if (error instanceof ApiError) {
+            const { result, statusCode } = error;
+            type OAuthError = {
+                error: OAuthProviderError;
+                error_description?: string;
+            };
+            return {
+                jsonResponse: result as OAuthError,
+                httpStatusCode: statusCode,
+            };
+        } else {
+            throw error;
+        }
+    }
+}
+
 
 /* ######################################################################
  * Process orders
