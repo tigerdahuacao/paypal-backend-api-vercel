@@ -4,10 +4,14 @@ import {
     Client,
     CustomError,
     Environment,
+    FulfillmentType,
     LogLevel,
     OAuthAuthorizationController,
     OrdersController,
+    PaypalExperienceUserAction,
     PaypalPaymentTokenUsageType,
+    PaypalWalletContextShippingPreference,
+    PhoneType,
     VaultController,
     VaultInstructionAction,
     VaultTokenRequestType,
@@ -239,6 +243,11 @@ export async function createOrder({
     }
 }
 
+
+/* ######################################################################
+ * Create orders with Basic Sample Data
+ * ###################################################################### */
+
 export async function createOrderWithSampleData() {
     const orderRequestBody = {
         intent: CheckoutPaymentIntent.Capture,
@@ -253,6 +262,107 @@ export async function createOrderWithSampleData() {
     };
     return createOrder({ orderRequestBody });
 }
+
+
+
+export async function createOrderBCDCInline(returlUrl?: string) {
+
+
+    const orderRequestBody = {
+        "intent": CheckoutPaymentIntent.Capture,
+        "purchaseUnits": [
+            {
+                "amount": {
+                    "currencyCode": "USD",
+                    "value": "149.95",
+                    "breakdown": {
+                        "itemTotal": {
+                            "currencyCode": "USD",
+                            "value": "149.95"
+                        }
+                    }
+                },
+                "items": [
+                    {
+                        "name": "Test Product",
+                        "unitAmount": {
+                            "currencyCode": "USD",
+                            "value": "29.99"
+                        },
+                        "quantity": "5",
+                        "sku": "test-product-1"
+                    }
+                ],
+                "shipping": {
+                    "type": FulfillmentType.Shipping,
+                    "method": "DHL",
+                    "name": {
+                        "fullName": "John Doe"
+                    },
+                    "address": {
+                        "addressLine1": "1600 Amphitheatre Parkway",
+                        "addressLine2": "Suite 100",
+                        "postalCode": "94043",
+                        "adminArea2": "Mountain View",
+                        "countryCode": "US",
+                        "adminArea1": "CA"
+                    }
+                }
+            }
+        ],
+        "payment_source": {
+            "paypal": {
+                "experience_context": {
+                    "paymentMethodPreference": "IMMEDIATE_PAYMENT_REQUIRED",
+                    "brandName": "EXAMPLE INC",
+                    "locale": "en-US",
+                    "landingPage": "LOGIN",
+                    "shippingPreference": PaypalWalletContextShippingPreference.SetProvidedAddress,
+                    "userAction": PaypalExperienceUserAction.PayNow,
+                    "returnUrl": returlUrl ? returlUrl : "http://localhost:3000/return-url",
+                    "cancelUrl": "http://localhost:3000/return-url"
+                },
+                "name": {
+                    "givenName": "John",
+                    "surname": "Doe"
+                },
+
+                "address": {
+                    "addressLine1": "1600 Amphitheatre Parkway",
+                    "addressLine2": "Suite 100",
+                    "postalCode": "94043",
+                    "adminArea2": "Mountain View",
+                    "countryCode": "US",
+                    "adminArea1": "CA"
+                },
+
+                "emailAddress": "test@test.com",
+                "phone": {
+                    "phoneType": PhoneType.Home,
+                    "phoneNumber": {
+                        "national_number": "4085551234"
+                    }
+                }
+            }
+        }
+    }
+    return createOrder({ orderRequestBody });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ######################################################################
+ * Capture orders 
+ * ###################################################################### */
 
 export async function captureOrder(orderId: string) {
     try {
