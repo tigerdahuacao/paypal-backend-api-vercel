@@ -352,6 +352,92 @@ export async function createOrderBCDCInline(returlUrl?: string) {
 
 
 
+export async function createOrderWithSampleDataAppSwitch(returlUrl: string, cancelUrl: string) {
+
+
+    const orderRequestBody = {
+        "intent": CheckoutPaymentIntent.Capture,
+        "purchaseUnits": [
+            {
+                "amount": {
+                    "currencyCode": "USD",
+                    "value": "149.95",
+                    "breakdown": {
+                        "itemTotal": {
+                            "currencyCode": "USD",
+                            "value": "149.95"
+                        }
+                    }
+                },
+                "items": [
+                    {
+                        "name": "Test Product",
+                        "unitAmount": {
+                            "currencyCode": "USD",
+                            "value": "29.99"
+                        },
+                        "quantity": "5",
+                        "sku": "test-product-1"
+                    }
+                ],
+                "shipping": {
+                    "type": FulfillmentType.Shipping,
+                    "method": "DHL",
+                    "name": {
+                        "fullName": "John Doe"
+                    },
+                    "address": {
+                        "addressLine1": "1600 Amphitheatre Parkway",
+                        "addressLine2": "Suite 100",
+                        "postalCode": "94043",
+                        "adminArea2": "Mountain View",
+                        "countryCode": "US",
+                        "adminArea1": "CA"
+                    }
+                }
+            }
+        ],
+        "payment_source": {
+            "paypal": {
+                "experience_context": {
+                    "paymentMethodPreference": "IMMEDIATE_PAYMENT_REQUIRED",
+                    "brandName": "EXAMPLE INC",
+                    "locale": "en-US",
+                    "landingPage": "LOGIN",
+                    "shippingPreference": PaypalWalletContextShippingPreference.SetProvidedAddress,
+                    "userAction": PaypalExperienceUserAction.PayNow,
+                    "returnUrl": returlUrl,
+                    "cancelUrl": cancelUrl,
+                    "appSwitchContext":  {
+                        "launch_paypal_app": true
+                    }
+                },
+                "name": {
+                    "givenName": "John",
+                    "surname": "Doe"
+                },
+
+                "address": {
+                    "addressLine1": "1600 Amphitheatre Parkway",
+                    "addressLine2": "Suite 100",
+                    "postalCode": "94043",
+                    "adminArea2": "Mountain View",
+                    "countryCode": "US",
+                    "adminArea1": "CA"
+                },
+
+                "emailAddress": "test@test.com",
+                "phone": {
+                    "phoneType": PhoneType.Home,
+                    "phoneNumber": {
+                        "national_number": "4085551234"
+                    }
+                }
+            }
+        }
+    }
+    return createOrder({ orderRequestBody });
+}
 
 
 
