@@ -1,5 +1,5 @@
-import { createOrder, createOrderWithSampleData } from "../../../utils/paypalFnUtil";
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { createOrderWithSampleData } from '../../../utils/createOrderScenario/orderFn';
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

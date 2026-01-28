@@ -1,5 +1,5 @@
-import { createOrder, createOrderBCDCInline, createOrderWithSampleData } from "../../../utils/paypalFnUtil";
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { createOrderBCDCInline } from '../../../utils/createOrderScenario/orderFn';
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -15,10 +15,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const returlUrl = req.body ? req.body["returlUrl"] : ""
+        const returnUrl = req.body ? req.body["returnUrl"] : ""
 
         const { jsonResponse, httpStatusCode } =
-            await createOrderBCDCInline(returlUrl);
+            await createOrderBCDCInline(returnUrl);
         res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {
         console.error("Failed to create order:", error);

@@ -55,9 +55,9 @@ const client = new Client({
 
 
 
-const ordersController = new OrdersController(client);
-const oAuthAuthorizationController = new OAuthAuthorizationController(client);
-const vaultController = new VaultController(client);
+export const ordersController = new OrdersController(client);
+export const oAuthAuthorizationController = new OAuthAuthorizationController(client);
+export const vaultController = new VaultController(client);
 
 /* ######################################################################
  * Token generation helpers
@@ -209,20 +209,13 @@ export async function getLiveBrowserSafeClientToken(clientId: string, clientSecr
 
 
 /* ######################################################################
- * Process orders
+ * Capture orders 
  * ###################################################################### */
 
-export async function createOrder({
-    orderRequestBody,
-    paypalRequestId,
-}: {
-    orderRequestBody: OrderRequest;
-    paypalRequestId?: string;
-}) {
+export async function captureOrder(orderId: string) {
     try {
-        const { result, statusCode } = await ordersController.createOrder({
-            body: orderRequestBody,
-            paypalRequestId,
+        const { result, statusCode } = await ordersController.captureOrder({
+            id: orderId,
             prefer: "return=minimal",
         });
 
@@ -245,216 +238,13 @@ export async function createOrder({
 
 
 /* ######################################################################
- * Create orders with Basic Sample Data
+ * Get orders Detail
  * ###################################################################### */
 
-export async function createOrderWithSampleData() {
-    const orderRequestBody = {
-        intent: CheckoutPaymentIntent.Capture,
-        purchaseUnits: [
-            {
-                amount: {
-                    currencyCode: "USD",
-                    value: "100.00",
-                },
-            },
-        ],
-    };
-    return createOrder({ orderRequestBody });
-}
-
-
-
-export async function createOrderBCDCInline(returlUrl?: string) {
-
-
-    const orderRequestBody = {
-        "intent": CheckoutPaymentIntent.Capture,
-        "purchaseUnits": [
-            {
-                "amount": {
-                    "currencyCode": "USD",
-                    "value": "149.95",
-                    "breakdown": {
-                        "itemTotal": {
-                            "currencyCode": "USD",
-                            "value": "149.95"
-                        }
-                    }
-                },
-                "items": [
-                    {
-                        "name": "Test Product",
-                        "unitAmount": {
-                            "currencyCode": "USD",
-                            "value": "29.99"
-                        },
-                        "quantity": "5",
-                        "sku": "test-product-1"
-                    }
-                ],
-                "shipping": {
-                    "type": FulfillmentType.Shipping,
-                    "method": "DHL",
-                    "name": {
-                        "fullName": "John Doe"
-                    },
-                    "address": {
-                        "addressLine1": "1600 Amphitheatre Parkway",
-                        "addressLine2": "Suite 100",
-                        "postalCode": "94043",
-                        "adminArea2": "Mountain View",
-                        "countryCode": "US",
-                        "adminArea1": "CA"
-                    }
-                }
-            }
-        ],
-        "payment_source": {
-            "paypal": {
-                "experience_context": {
-                    "paymentMethodPreference": "IMMEDIATE_PAYMENT_REQUIRED",
-                    "brandName": "EXAMPLE INC",
-                    "locale": "en-US",
-                    "landingPage": "LOGIN",
-                    "shippingPreference": PaypalWalletContextShippingPreference.SetProvidedAddress,
-                    "userAction": PaypalExperienceUserAction.PayNow,
-                    "returnUrl": returlUrl ? returlUrl : "http://localhost:3000/return-url",
-                    "cancelUrl": "http://localhost:3000/return-url"
-                },
-                "name": {
-                    "givenName": "John",
-                    "surname": "Doe"
-                },
-
-                "address": {
-                    "addressLine1": "1600 Amphitheatre Parkway",
-                    "addressLine2": "Suite 100",
-                    "postalCode": "94043",
-                    "adminArea2": "Mountain View",
-                    "countryCode": "US",
-                    "adminArea1": "CA"
-                },
-
-                "emailAddress": "test@test.com",
-                "phone": {
-                    "phoneType": PhoneType.Home,
-                    "phoneNumber": {
-                        "national_number": "4085551234"
-                    }
-                }
-            }
-        }
-    }
-    return createOrder({ orderRequestBody });
-}
-
-
-
-
-export async function createOrderWithSampleDataAppSwitch(returlUrl: string, cancelUrl: string) {
-
-
-    const orderRequestBody = {
-        "intent": CheckoutPaymentIntent.Capture,
-        "purchaseUnits": [
-            {
-                "amount": {
-                    "currencyCode": "USD",
-                    "value": "149.95",
-                    "breakdown": {
-                        "itemTotal": {
-                            "currencyCode": "USD",
-                            "value": "149.95"
-                        }
-                    }
-                },
-                "items": [
-                    {
-                        "name": "Test Product",
-                        "unitAmount": {
-                            "currencyCode": "USD",
-                            "value": "29.99"
-                        },
-                        "quantity": "5",
-                        "sku": "test-product-1"
-                    }
-                ],
-                "shipping": {
-                    "type": FulfillmentType.Shipping,
-                    "method": "DHL",
-                    "name": {
-                        "fullName": "John Doe"
-                    },
-                    "address": {
-                        "addressLine1": "1600 Amphitheatre Parkway",
-                        "addressLine2": "Suite 100",
-                        "postalCode": "94043",
-                        "adminArea2": "Mountain View",
-                        "countryCode": "US",
-                        "adminArea1": "CA"
-                    }
-                }
-            }
-        ],
-        "payment_source": {
-            "paypal": {
-                "experience_context": {
-                    "paymentMethodPreference": "IMMEDIATE_PAYMENT_REQUIRED",
-                    "brandName": "EXAMPLE INC",
-                    "locale": "en-US",
-                    "landingPage": "LOGIN",
-                    "shippingPreference": PaypalWalletContextShippingPreference.SetProvidedAddress,
-                    "userAction": PaypalExperienceUserAction.PayNow,
-                    "returnUrl": returlUrl,
-                    "cancelUrl": cancelUrl,
-                    "appSwitchContext":  {
-                        "launch_paypal_app": true
-                    }
-                },
-                "name": {
-                    "givenName": "John",
-                    "surname": "Doe"
-                },
-
-                "address": {
-                    "addressLine1": "1600 Amphitheatre Parkway",
-                    "addressLine2": "Suite 100",
-                    "postalCode": "94043",
-                    "adminArea2": "Mountain View",
-                    "countryCode": "US",
-                    "adminArea1": "CA"
-                },
-
-                "emailAddress": "test@test.com",
-                "phone": {
-                    "phoneType": PhoneType.Home,
-                    "phoneNumber": {
-                        "national_number": "4085551234"
-                    }
-                }
-            }
-        }
-    }
-    return createOrder({ orderRequestBody });
-}
-
-
-
-
-
-
-
-
-/* ######################################################################
- * Capture orders 
- * ###################################################################### */
-
-export async function captureOrder(orderId: string) {
+export async function getOrder(orderId: string) {
     try {
-        const { result, statusCode } = await ordersController.captureOrder({
+        const { result, statusCode } = await ordersController.getOrder({
             id: orderId,
-            prefer: "return=minimal",
         });
 
         return {

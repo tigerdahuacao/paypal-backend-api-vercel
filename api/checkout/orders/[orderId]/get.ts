@@ -1,5 +1,6 @@
+
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createOrderWithSampleDataAppSwitch } from '../../../utils/createOrderScenario/orderFn';
+import { captureOrder, getOrder } from '../../../../utils/paypalFnUtil';
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -15,15 +16,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const returnUrl = req.body ? req.body["returnUrl"] : ""
-        const cancelUrl = req.body ? req.body["cancelUrl"] : ""
-        const { jsonResponse, httpStatusCode } =
-            await createOrderWithSampleDataAppSwitch(returnUrl, cancelUrl);
+        const orderIdParam = req.query.orderId;
+        const orderId = Array.isArray(orderIdParam) ? orderIdParam[0] : orderIdParam;
+        if (!orderId) {
+            return res.status(400).json({ error: 'Missing orderId' });
+        }
+        const { jsonResponse, httpStatusCode } = await getOrder(orderId);
         res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {
-        console.error("Failed to create order:", error);
-        res.status(500).json({ error: "Failed to create order." });
+        console.error("Failed to get order:", error);
+        res.status(500).json({ error: "Failed to get order." });
     }
-
 
 }
