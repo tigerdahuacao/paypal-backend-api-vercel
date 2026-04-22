@@ -32,7 +32,9 @@ const { DOMAINS, PAYPAL_SANDBOX_CLIENT_ID, PAYPAL_SANDBOX_CLIENT_SECRET } =
     getDefaultCredentials()
 
 if (!PAYPAL_SANDBOX_CLIENT_ID || !PAYPAL_SANDBOX_CLIENT_SECRET) {
-    throw new Error("Missing API credentials");
+    throw new Error(
+        "Missing API credentials. Set PAYPAL_CLIENT_ID and PAYPAL_SECRET (or PAYPAL_SANDBOX_CLIENT_ID and PAYPAL_SANDBOX_CLIENT_SECRET) in Vercel Project Settings -> Environment Variables.",
+    );
 }
 
 const client = new Client({

@@ -1,0 +1,5 @@
+{
+  "paypalClientId": "your-paypal-client-id",
+  "paypalSecret": "your-paypal-secret",
+  "fastlaneDomain": "example.com"
+}
