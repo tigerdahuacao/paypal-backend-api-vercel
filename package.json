@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "vercel dev",
-    "dv": "vercel deploy --prod"
+    "local": "vercel dev",
+    "vdeploy": "vercel deploy --prod",
+    "vercel:login": "vercel login"
   },
   "keywords": [],
   "author": "",
